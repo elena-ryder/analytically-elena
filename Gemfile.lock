@@ -47,7 +47,7 @@ PLATFORMS
   x64-mingw32
 
 DEPENDENCIES
-  jekyll (~> 3.6.3)
+  jekyll (= 3.6.3)
   jekyll-archives
 
 BUNDLED WITH
