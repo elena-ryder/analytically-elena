@@ -505,4 +505,6 @@ Select "Create Embed Code" and "Publish"
 
 Final URL: 
 
+https://app.powerbi.com/view?r=eyJrIjoiNGUxNWMwODEtMmQzMC00OWZlLWE4MTktY2Y0ZjkxYzc0MWYxIiwidCI6ImQ3MWZkNmE4LThiMDktNDUzZC04NTIzLWJlMTY2NmVhOWY2ZiIsImMiOjF9
+
 <iframe title="AdventureWorksAnalysis - Report" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNGUxNWMwODEtMmQzMC00OWZlLWE4MTktY2Y0ZjkxYzc0MWYxIiwidCI6ImQ3MWZkNmE4LThiMDktNDUzZC04NTIzLWJlMTY2NmVhOWY2ZiIsImMiOjF9" frameborder="0" allowFullScreen="true"></iframe>
