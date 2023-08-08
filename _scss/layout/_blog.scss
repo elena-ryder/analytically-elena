@@ -86,8 +86,10 @@ section.blog-section {
   // Blog Articles Container
   .blog-articles-container {
     margin-top: 80px;
+    border-radius: 5px; // adjusted border and padding for article container
+    padding: 20px;
 
-    // Resonsive Media
+    // Responsive Media
     .col-md-4 {
       @media (max-width: 430px) {
         width: 100%;
@@ -129,6 +131,32 @@ section.blog-section {
           height: auto;
         }
 
+        .img-wrap {
+          position: relative;
+          overflow: hidden;
+          display: block;
+          width: 100%;
+          height: auto;
+        
+          &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent, rgba(0, 0, 0, 0.5));
+            pointer-events: none;
+            opacity: 1; // Sets the initial opacity to 1
+            transition: opacity 0.3s ease-in-out; // Transitions the opacity property
+          }
+        
+          &:hover::after {
+            opacity: 0; // Sets the opacity to 0 on hover, effectively hiding the vignette
+          }
+        }
+        
+
         .article-title {
           display: block;
           width: 100%;
@@ -164,6 +192,58 @@ section.blog-section {
         position: relative;
         float: left;
         width: 100%;
+                                                                                  // BEGIN _reset.scss Overwrite
+        line-height: 2; /* Adjust this value for space between lines */
+        word-spacing: 0.2em; /* Adjust this value for space between words */
+        
+        .date {
+          line-height: 1;
+        }
+        
+        .time {
+          line-height: 1;
+        }
+
+        ol {
+          list-style: decimal;
+          padding-inline-start: 40px;
+        }
+
+        ul {
+          list-style: disc;
+          padding-inline-start: 20px;
+        }
+
+        .highlight pre {
+          border: none;
+          margin-top: -5px;
+        }
+        
+        .highlight {
+          background: #2f3131; /* dark gray background */
+          color: #ffffff; /* white text */
+          border: 1px solid #000;
+          border-radius: 5px; /* rounded corners */
+          padding: 5px; /* optional padding for inner spacing */
+          margin-top: 15px;
+        }
+
+        table {
+          border-collapse: separate;
+          border-spacing: 1px; 
+          border-radius: 5px;
+          width: 100%; /* Limiting the table width to the parent container's width */
+          overflow: auto; /* Adding scrollbar if the content overflows */
+          display: block; /* Making the table a block element to apply overflow */
+        }
+
+        td, th {
+          border: 1px solid #000; /* 1px solid black border */
+          padding: 8px; /* Optional padding for cell content */
+          background-color: #2f3131;
+      }
+
+                                                                                // END _reset.scss overwrite
 
         // Article Date
         .article-date {
@@ -226,7 +306,7 @@ section.blog-section {
     }
 
   }
-
+  
   // View All Posts
   .view-posts {
     hr.normal {

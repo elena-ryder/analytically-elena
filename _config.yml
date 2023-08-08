@@ -11,7 +11,7 @@ sass:
   sass_dir: _scss
 
 # Information for deploy
-baseurl: "/analytically-elena"
+#baseurl: ""
 
 # the base hostname & protocol for your site
 url: "http://localhost:4000"
@@ -43,13 +43,13 @@ jekyll-archives:
 #######################################################
 
 # This is your site title
-title: Sera - OnePage Multi-Purpose Theme
+title: Analytically Elena - My Portfolio Website
 # Website language
 lang: en-US
 # Header Title
-header-title: Create the <strong>Impossible</strong>
+header-title: My name is <strong>Elena Ryder</strong>
 # Header Tagline
-headter-tagline: We Always
+headter-tagline: <strong>HELLO</strong>
 
 ####################################
 ######   CTA Header Buttons   ######
@@ -57,12 +57,12 @@ headter-tagline: We Always
 
 # Focus Buttons
 header-focus-button:
-  title: Download Now
-  url: https://themeforest.net/collections/6069390-sera
+  title: Portfolio
+  url: "#portfolio"
 
 # Secondary Buttons
 header-secondary-button:
-  title: Discover More
+  title: Résumé
   url: http://themeforest.net/user/ohkimur
 
 #
@@ -70,7 +70,7 @@ header-secondary-button:
 # IMPORTANT: you can modify contact form from this static template, but now works contact form works with a free external server
 # To configure this contact form, first please send a fictive email afeter you enter below your email and verify that :)
 #
-email: your_email@example.com
+email: elena.ryder@pm.me
 
 # Offer Banner Link
 # Default link is a link to all Sera OnePage products
@@ -94,10 +94,10 @@ vimeo: "#"
 # About Blog Author Widget
 #
 about-widget:
-  author-avatar: avatar-02.jpg
-  author-name: John Doe
+  author-avatar: avatar-01.jpg
+  author-name: Elena Ryder
   author-tagline: Blog Author
-  author-info: Cum sociis que penatibus et magnis dis parturient montes lorem, nascetur ridiculus mus. Donec quam felis, ultricies.
+  author-info: "Cum sociis que penatibus et magnis dis parturient montes lorem, nascetur ridiculus mus. Donec quam felis, ultricies."
   author-social-links:
     youtube: "#"
     pinterest: "#"
@@ -129,7 +129,7 @@ mailchimp:
 #####################################
 #############   About   #############
 #####################################
-about-title: Welcome to Sera
+about-title: About Me
 about-description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean at tincidunt sem. Interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi id ornare ante. Cras odio nibh, volutpat vitae volutpat sed, suscipit et nisi. Nulla a tellus at turpis gravida congue non sed nisl.
 
 #####################################
@@ -320,9 +320,9 @@ testimonials:
     logo-img: audiojungle.png
 
 #####################################
-############# Our Blog ##############
+############# My Blog ##############
 #####################################
-blog-title: Our Blog
+blog-title: My Blog
 blog-description: Interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi id ornare ante. Cras odio nibh, volutpat vitae volutpat sed, suscipit et nisi. Nulla a tellus at turpis gravida congue non sed nisl. Pellentesque scelerisque eu neque et tincidunt.
 
 #####################################
@@ -426,13 +426,13 @@ plan-ultimate-url: "#"
 #####################################
 ############   Contact   ############
 #####################################
-contact-title: Contact Us
+contact-title: Contact Me
 contact-description: Nulla a tellus at turpis gravida congue non interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi id ornare ante. Cras odio nibh, volutpat.
 
 #####################################
 #############   Footer   ############
 #####################################
 footer-description: Nulla a tellus at turpis gravida congue non interdum et malesuada fames ac ante ipsum primis in faucibus. Morbi id ornare ante. Cras odio nibh, volutpat.
-footer-copyright-text: Ohkimur
-footer-copyright-url: https://github.com/ohkimur
-footer-copyright-year: 2021
+footer-copyright-text: elena-ryder
+footer-copyright-url: https://github.com/elena-ryder
+footer-copyright-year: 2023

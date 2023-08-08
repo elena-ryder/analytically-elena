@@ -18,7 +18,7 @@ body {
   color: $global-text;
 
   // Background
-  background-color: $background-color;
+  background-color: $section-gray;
 
   // Overflow No Scroll
   .site-header .container {
@@ -132,7 +132,7 @@ hr {
     border: none;
     width: 100px;
     height: 4px;
-    background-color: $secondary;
+    background-color: $dark-blue;
 
     &:after {
       display: block;

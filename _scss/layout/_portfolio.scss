@@ -8,6 +8,8 @@
 
 section.portfolio-section {
 
+  background-color: $about-gray; // Added a darker background to portfolio section
+
   // Filter Menu
   .filter-menu-wrapper {
     margin: 50px 0;
@@ -15,7 +17,7 @@ section.portfolio-section {
     .filter-menu {
       display: block;
       width: 100%;
-      background-color: $light-blue;
+      background-color: $section-gray;
       border-radius: 3px;
       letter-spacing: normal;
       text-align: center;

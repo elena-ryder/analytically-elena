@@ -35,8 +35,7 @@ section.features-section {
         .circle {
           width: 50%;
           padding-bottom: 50%;
-          border: 0;
-          background: $simple-gray;
+          border: 1px solid $about-gray;
 
           i {
             font-size: 3rem;
