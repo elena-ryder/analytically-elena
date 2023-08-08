@@ -28,6 +28,7 @@ This is a step-by-step process on a project utilizing the AdventureWorks sample 
 9. Select "New Query" from tool ribbon - Query Input:
    ```sql
    USE AdventureWorks2022
+
    SELECT TOP 1 *
    FROM Sales.Customer;
    ```
@@ -92,7 +93,9 @@ I need to identify which tables I will be using for my analysis to later import 
     <br>
     <br>
 
-  <i>I noticed a lot of null values in the PersonID column for Sales.Customer and so I decided to investigate."</i>
+  <i>While exploring the database I saw the Person.Person table contained valuable customer name information, so I tried looking for a relationship to connect it back to Sales.Customer.</i>
+
+  <i>I noticed a lot of null values in the PersonID column for Sales.Customer and decided to investigate.</i>
 
 9. Query Input:
 
@@ -104,7 +107,7 @@ I need to identify which tables I will be using for my analysis to later import 
         FROM Sales.Customer
         WHERE PersonID IS NOT NULL) AS quantity_not_null
     FROM Sales.Customer
-    WHERE PersonID IS NULL 
+    WHERE PersonID IS NULL;
     ```
 
 10. Execute
@@ -114,7 +117,9 @@ I need to identify which tables I will be using for my analysis to later import 
     | 701           | 19119             |
 
 
-  <i>Then I expected to find PersonID as a primary key in the Person.Person table but was unable to find it. I decided to run a query to search for all columns in the database called 'PersonID'</i>
+  <i>These null values weren't too concerning to me and are actually because some of the customers are stored as BussinessEntityID and not PersonID which is an intentional feature of this database. 
+  
+  I expected to find PersonID as a primary key in the Person.Person table but was unable to find it. I used the system views in SSMS and decided to search for all columns containing the name "PersonID".</i>
 
 11. Query Input:
 
@@ -133,33 +138,39 @@ I need to identify which tables I will be using for my analysis to later import 
     | BusinessEntityContact | PersonID    |
     | Customer              | PersonID    |
 
+<i>Initially, I thought this meant I would need to link Sales.Customer and Person.Person using Person.BusinessEntityContact as an intermediary, but I was getting some ill results. Eventually, after using the internet as a resource and reviewing an entity relationship diagram for AdventureWorks, I discovered that BussinessEntityID in Person.Person is equivalent to PersonID in Sales.Customer.
 
-13. Identify relationships between:
+I was concerned about the integrity of the relationship between PersonID and BusinessEntityID, due to the possibility that they could be similar but very different indicators. I ran a query to verify.</i>
 
-    * `Sales.Customer` and `Person.BusinessEntityContact` on PersonID,
-    * `Person.BusinessEntityContact` and `Person.Person` on BusinessEntityID
-    <br>
-    <br>
+13. Query Input:    
 
-14. Query Input:
-
-    ```sql
+    ```SQL
     USE AdventureWorks2022
 
-    SELECT TOP 1 *
-    FROM Person.Person;
+    SELECT PersonID, BusinessEntityID
+    FROM Sales.Customer AS c
+    FULL OUTER JOIN Person.Person AS p
+    ON c.PersonID = p.BusinessEntityID
+    WHERE PersonID <> BusinessEntityID; -- Checks if there are any instances where these do not match
     ```
+14. Execute
 
-15. Execute
+| PersonID | BusinessEntityID |
+|----------|------------------|
 
-    | BusinessEntityID | PersonType | NameStyle | Title | FirstName | MiddleName | LastName | Suffix | EmailPromotion | AdditionalContactInfo | Demographics                                                                                   | rowguid                              | ModifiedDate           |    
-    |------------------|------------|-----------|-------|-----------|------------|----------|--------|----------------|-----------------------|------------------------------------------------------------------------------------------------|--------------------------------------|------------------------|
-    | 1                | EM         | 0         | NULL  | Ken       | J          | Sánchez  | NULL   | 0              | NULL                  | &lt;IndividualSurvey xmlns="http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey"&gt;&lt;TotalPurchaseYTD&gt;0&lt;/TotalPurchaseYTD&gt;&lt;/IndividualSurvey&gt; | 92C4279F-1207-48A3-8448-4636514EB7E2 | 2009-01-07 00:00:00.000 |
+<i>I was relieved to see that the query returned an empty table. Using these same methods I also verified the connection between Sales.Customer and Sales.Store, as store locations are also considered customers.</i>
 
 
-<i>This table contains the customer names I was looking for.</i>
+14. Identify relationship between:
 
-16. Identify the following tables for use:
+    * `Sales.Customer` and `Person.Person` on PersonID = BusinessEntityID
+    * `Sales.Customer` and `Sales.Store` on StoreID = BusinessEntityID
+    <br>
+    <br>
+
+
+
+17. Identify the following tables for use:
 
     * `Sales.SalesOrderHeader`,
     * `Sales.SalesOrderDetail`,
@@ -169,7 +180,329 @@ I need to identify which tables I will be using for my analysis to later import 
     * `Production.Product`,
     * `Production.ProductSubcategory`,
     * `Product.ProductCategory`,
-    * `Person.BusinessEntityContact`,
     * `Person.Person`
 
-### **End**
+<i>Lastly, before I finish up in SQL Server Management Studio, I'm going to create some views to consolidate and denormalize my Sales, Customer, and Product tables and prepare them to conform to a star schema in my Power BI data model.</i>
+
+18. Query Inputs:
+
+    ```SQL
+    CREATE VIEW Product_Dim AS
+
+    SELECT		ProductID, 
+                Name, 
+                ProductNumber, 
+                Color, 
+                Size, 
+                StandardCost, 
+                ListPrice, 
+                p1.ProductSubcategoryID, 
+                p2.ProductCategoryID, 
+                SubcategoryName,
+                CategoryName
+    FROM AdventureWorks2022.Production.Product AS p1
+    LEFT JOIN   (
+                SELECT ProductSubcategoryID, ProductCategoryID, Name AS SubcategoryName 
+                FROM AdventureWorks2022.Production.ProductSubcategory
+                ) AS p2
+    ON p1.ProductSubcategoryID = p2.ProductSubcategoryID
+    LEFT JOIN   (
+                SELECT ProductCategoryID, Name AS CategoryName
+                FROM AdventureWorks2022.Production.ProductCategory
+                ) AS p3
+    ON p2.ProductCategoryID = p3.ProductCategoryID;
+    ```
+    <br>
+
+    ```SQL
+    CREATE VIEW Customer_Dim AS
+
+    SELECT  CustomerID,
+            PersonID,
+            StoreID,
+            TerritoryID,
+            PersonType,
+            Title,
+            FirstName,
+            MiddleName,
+            LastName,
+            Suffix,
+            s.Name AS BusinessName
+    FROM AdventureWorks2022.Sales.Customer AS c
+    LEFT JOIN AdventureWorks2022.Person.Person AS p
+    ON c.PersonID = p.BusinessEntityID
+    LEFT JOIN AdventureWorks2022.Sales.Store AS s
+    ON c.StoreID = s.BusinessEntityID;
+    ```
+    <br>
+
+    ```SQL
+    CREATE VIEW Sales_Fact AS
+
+    SELECT	s1.SalesOrderID,
+            OrderDate,
+            CustomerID,
+            SalesPersonID,
+            TerritoryID,
+            SubTotal,
+            TaxAmt,
+            Freight,
+            TotalDue,
+            OrderQty,
+            ProductID,
+            UnitPrice,
+            UnitPriceDiscount
+    FROM AdventureWorks2022.Sales.SalesOrderHeader AS s1
+    LEFT JOIN AdventureWorks2022.Sales.SalesOrderDetail AS s2
+    ON s1.SalesOrderID = s2.SalesOrderID;
+    ```
+
+### **Loading and Modelling the Data**
+
+1. Open Power BI Desktop
+
+2. Select File > Options > Options and Settings
+
+3. Under the "Current File" section, select "Data Load"
+
+4. Deselect "Autodetect new relationships after data is loaded" and "Auto date/time"
+
+<i>This allows me to create my own relationships in my model and my own date table.</i>
+
+5. Click "OK"
+
+6. Select File > Save As > Browse this device
+
+7. Save file as `AdventureWorksAnalysis.pbix`
+
+8. Select "Get Data" from the Home Ribbon and choose "SQL Server"
+
+9. Server: localhost\SQLEXPRESS Database: AdventureWorks2022 Data Connectivity Mode: Import
+
+10. In the Navigator, select the following tables
+
+    * `Customer_Dim`,
+    * `Product_Dim`,
+    * `Sales_Fact`,
+    * `Sales.SalesTerritory`,
+    <br><br>
+
+11. Click "Transform Data"
+
+12. Sales_Fact - Format UnitPriceDiscount as Percentage
+
+13. Sales.SalesTerritory - Rename as Territory_Dim - Remove columns:
+
+    * rowguid
+    * ModifiedDate
+    <br><br>
+
+15. Close and Apply
+
+16. In the Data tab, open Sales_Fact table
+
+17. Sort OrderDate by ASC then DESC to find the MIN and MAX OrderDate
+
+<i>I did this to notate the date range for our data model and use that information for the next step.</i>
+
+18. In the Home ribbon select "New Table"
+
+19. DAX Input: 
+ 
+    ```dax
+    Date_Dim =
+    ADDCOLUMNS(
+        CALENDAR(DATE(2011,5,31), DATE(2014,6,30)),
+        "Year", YEAR([Date]),
+        "Quarter", "Q" & FORMAT([Date], "Q"),
+        "Month", FORMAT([Date], "mmmm"),
+        "Week", WEEKNUM([Date]),
+        "Day", DAY([Date]),
+        "Day of Week", FORMAT([Date], "dddd")
+    )
+    ```
+
+<i>Having a dedicated date table like this is a best practice and may be of use later.</i>
+
+20. In the Model tab, create the following relationships:
+
+    * Product_Dim `ProductID` -> One-to-Many -> Sales_Fact `ProductID`
+    * Date_Dim `Date` -> One-to-Many -> Sales_Fact `OrderDate`
+    * Customer_Dim `CustomerID` -> One-to-Many -> Sales_Fact `CustomerID`
+    * Territory_Dim `TerritoryID` -> One-to-Many -> Sales_Fact `TerritoryID`
+    <br><br>
+
+![Alt text](data-model.jpg)
+
+### **Calculated Columns and Measures**
+
+1. Create a blank new table for storing DAX measures - Input:
+
+    ```dax
+    Measure_Table = 
+    ```
+
+2. Create the first DAX measure for the Measure_Table - Input:
+
+    ```dax
+    Revenue =  
+    SUMX(
+        Sales_Fact,
+        Sales_Fact[OrderQty] * Sales_Fact[UnitPrice] * (1 - Sales_Fact[UnitPriceDiscount])
+    )
+    ```
+3. Select empty column from Measure_Table and selecet "Hide in Report View"
+
+<i>I would normally choose Delete from model here but wasn't getting the option. Either way, this will promote the Measure_Table to the top of the list and give it a calculator icon to designate it explicitly for measures.</i>
+
+4. Create the following DAX measures:
+
+* Revenue - Input:
+
+    ```dax
+    Revenue = 
+    SUMX(
+        Sales_Fact,
+        Sales_Fact[OrderQty] * Sales_Fact[UnitPrice] * (1 - Sales_Fact[UnitPriceDiscount])
+    )
+    ```
+
+* All Revenue - Input:
+
+    ```dax
+    All Revenu = 
+    CALCULATE(
+        [Revenue],
+        ALL(Sales_Fact)
+    )
+    ```
+    
+* % of All Revenue - Input:
+
+    ```dax
+    % of All Revenue = 
+    DIVIDE(
+        [Revenue], [All Revenue]
+    )
+    ```
+
+
+* Profit - Input:
+
+    ```dax
+    Profit = 
+    SUMX(
+        Sales_Fact,
+        [Revenue] - (Sales_Fact[OrderQty] * RELATED(Product_Dim[StandardCost]))
+    )
+    ```
+
+* All Profit - Input:
+
+    ```dax
+    All Profit = 
+    CALCULATE(
+        [Profit],
+        ALL(Sales_Fact)
+    )
+    ```
+
+* % of All Profit - Input:
+
+    ```dax
+    % of All Profit = 
+    DIVIDE(
+        [Profit], [All Profit]
+    )
+    ```
+
+* Profit Margin - Input:
+
+    ```dax
+    Profit Margin = 
+    Divide(
+        [Profit], [Revenue]
+    )
+    ```
+* Total Cost - Input:
+
+    ```dax
+    Total Cost = 
+    [Revenue] - [Profit]
+    ```
+
+5. Create calculated column in Customer_Dim for name concatenation - Input:
+
+    ```dax
+    FullName = 
+    TRIM(
+        Customer_Dim[Title] & " " & 
+        Customer_Dim[FirstName] & " " & 
+        Customer_Dim[MiddleName] & " " &
+        Customer_Dim[LastName] & " " & 
+        Customer_Dim[Suffix]
+    )
+    ```
+
+<i>At this point I was doing some testing with a KPI chart and retroactively updated all of the currency columns to use 2 decimal values. This increased readability. Additionally, I wasn't getting the Trend Axis sorting that I wanted out of the Month column, so I:</i>
+
+6. Create calculated column in Date_Dim for Start of Month - Input:
+
+    ```dax
+    Start of Month = 
+    STARTOFMONTH(
+        Date_Dim[Date]
+    )
+    ```
+<i>This worked out much better and gave me the proper trending line chart in the KPI background that I was looking for.</i>
+
+7. Create Hierarchy from Year - Add Quarter, Month, Week, Date
+
+<i>I continued to have issues with the dates and Start of Month on my KPI charts. While digging deeper into the data, I found that despite the fact that the month of June 2014 was fully populated with Sales data, all of those orders were significantly low value. I cross referenced the SQL database to confirm what I was seeing here.</i>
+
+8. Input:
+
+    ```sql
+    USE AdventureWorks2022;
+    GO
+
+    SELECT	ROUND(SUM(SubTotal),2) AS June2014_Revenue,
+            (
+                SELECT ROUND(SUM(SubTotal),2)
+                FROM Sales.SalesOrderHeader 
+                WHERE OrderDate BETWEEN '2014-05-01' AND '2014-05-31'
+            ) AS May2014_Revenue
+    FROM Sales.SalesOrderHeader 
+    WHERE OrderDate BETWEEN '2014-06-01' AND '2014-06-30';
+    ```
+9. Execute
+
+    | June2014_Revenue | May2014_Revenue |
+    |-----------------:|----------------:|
+    |         49005.84 |      5366674.97 |
+
+<i>Wow! May's numbers were in the millions and June's were in the 10's of thousands. It's as if AdventureWorks as a company had gone bankrupt and liquidated all assets. This wasn't helping me get what I wanted out of this dataset, so I decided to exclude June 2014.</i>
+
+10. Apply Report-Level Filter for "Start of Month," selecting all options except for 6/1/2014
+
+11. 
+
+### **On Power BI Service**
+
+Select Workspaces > New Workspace > Name it "Portfolio Project 1" No Description, Select Apply.
+
+In Power BI, select "Publish" from the Home Ribbon.
+
+Choose "Portfolio Project 1," click "Select," and "Got it"
+
+Open `AdventureWorksAnalysis` in Power BI Service, verify everything looks good
+
+Click the Edit button at the top ribbon.
+
+Once in Edit Mode, choose File > Publish to Web
+
+Select "Create Embed Code" and "Publish"
+
+Final URL: 
+
+<iframe title="AdventureWorksAnalysis - Report" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNGUxNWMwODEtMmQzMC00OWZlLWE4MTktY2Y0ZjkxYzc0MWYxIiwidCI6ImQ3MWZkNmE4LThiMDktNDUzZC04NTIzLWJlMTY2NmVhOWY2ZiIsImMiOjF9" frameborder="0" allowFullScreen="true"></iframe>
